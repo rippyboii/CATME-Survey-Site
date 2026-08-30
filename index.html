@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CATME Peer Evaluation &mdash; ENGR1000J</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+
+    <header class="app-header">
+      <h1>Team Member Effectiveness Survey</h1>
+      <p class="app-sub">Peer &amp; self evaluation</p>
+    </header>
+
+    <nav class="progress" id="progress" aria-label="Progress">
+      <ol>
+        <li data-step="info"><span class="dot">1</span><span class="label">Your details</span></li>
+        <li data-step="teammates"><span class="dot">2</span><span class="label">Team roster</span></li>
+        <li data-step="survey"><span class="dot">3</span><span class="label">Survey</span></li>
+        <li data-step="summary"><span class="dot">4</span><span class="label">Summary</span></li>
+      </ol>
+    </nav>
+
+    <main id="screens">
+
+      <!-- WELCOME PAGE -->
+
+      <section class="screen" data-screen="welcome" hidden>
+        <h2>Before you begin</h2>
+        <p>
+          This survey asks you to evaluate every member of your team;
+          <strong>including yourself</strong>; on ten aspects of team member
+          effectiveness.
+        </p>
+        <ul class="notes">
+          <li>You will rate each member on a scale from 1 (strongly disagree) to 7 (strongly agree).</li>
+          <li>You can go back and change any rating before you submit.</li>
+          <li><strong>At the end you will be prompted to download a PDF file that you need to turn in to the Canvas.</strong></li>
+          <li> Please refer to the Teaching Team, if you need any assitance while completing the survey.</li>
+        </ul>
+        <div class="actions">
+          <button type="button" class="btn btn-primary" data-go="info">Start</button>
+        </div>
+      </section>
+
+      <!-- STUDENT DETAILS  -->
+      <section class="screen" data-screen="info" hidden>
+        <h2>Your details</h2>
+        <form id="info-form" novalidate>
+
+          <div class="field">
+            <label for="f-name">Full name</label>
+            <input type="text" id="f-name" name="name" autocomplete="name" placeholder="e.g. Zhang Wei">
+            <p class="error" data-error-for="name"></p>
+          </div>
+
+          <div class="field">
+            <label for="f-studentId">SJTU student ID</label>
+            <input type="text" id="f-studentId" name="studentId" inputmode="numeric" placeholder="e.g. 523370910001">
+            <p class="error" data-error-for="studentId"></p>
+          </div>
+
+          <div class="field">
+            <label for="f-courseCode">Course code</label>
+            <input type="text" id="f-courseCode" name="courseCode" value="ENGR1000J">
+            <p class="error" data-error-for="courseCode"></p>
+          </div>
+
+          <div class="field">
+            <label for="f-teamId">Team ID</label>
+            <input type="text" id="f-teamId" name="teamId" placeholder="e.g. Team 02">
+            <p class="error" data-error-for="teamId"></p>
+          </div>
+
+          <div class="field">
+            <label for="f-teammateCount">Number of team members, <em>excluding</em> yourself</label>
+            <input type="number" id="f-teammateCount" name="teammateCount" min="1" max="15" step="1" placeholder="e.g. 3">
+            <p class="hint">You will type each teammate&rsquo;s name on the next screen.</p>
+            <p class="error" data-error-for="teammateCount"></p>
+          </div>
+
+          <div class="actions">
+            <button type="button" class="btn btn-ghost" data-go="welcome">Back</button>
+            <button type="submit" class="btn btn-primary">Next</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ============ TEAM ROSTER (stage 3) ============ -->
+      <section class="screen" data-screen="teammates" hidden>
+        <h2>Team roster</h2>
+        <p class="stub-note">Stage 3 &mdash; teammate name inputs will be generated here.</p>
+        <pre class="debug" id="debug-info"></pre>
+        <div class="actions">
+          <button type="button" class="btn btn-ghost" data-go="info">Back</button>
+          <button type="button" class="btn btn-primary" data-go="survey">Next</button>
+        </div>
+      </section>
+
+      <!-- ============ SURVEY (stage 4) ============ -->
+      <section class="screen" data-screen="survey" hidden>
+        <h2>Survey</h2>
+        <p class="stub-note">Stage 4 &mdash; the ten survey items and the rating table will live here.</p>
+        <div class="actions">
+          <button type="button" class="btn btn-ghost" data-go="teammates">Back</button>
+          <button type="button" class="btn btn-primary" data-go="summary">Next</button>
+        </div>
+      </section>
+
+      <!-- ============ SUMMARY (stage 5) ============ -->
+      <section class="screen" data-screen="summary" hidden>
+        <h2>Summary</h2>
+        <p class="stub-note">Stage 5 &mdash; summary of all ratings, normalised scores, and the PDF button.</p>
+        <div class="actions">
+          <button type="button" class="btn btn-ghost" data-go="survey">Back</button>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="app-footer">
+      <p>ENGR1000J &middot; All answers stay in your browser.</p>
+    </footer>
+
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
