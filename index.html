@@ -88,24 +88,45 @@
         </form>
       </section>
 
-      <!-- ============ TEAM ROSTER (stage 3) ============ -->
+      <!-- ============ TEAM ROSTER ============ -->
       <section class="screen" data-screen="teammates" hidden>
         <h2>Team roster</h2>
-        <p class="stub-note">Stage 3 &mdash; teammate name inputs will be generated here.</p>
-        <pre class="debug" id="debug-info"></pre>
-        <div class="actions">
-          <button type="button" class="btn btn-ghost" data-go="info">Back</button>
-          <button type="button" class="btn btn-primary" data-go="survey">Next</button>
-        </div>
+        <p class="lede" id="roster-lede"></p>
+        <form id="roster-form" novalidate>
+          <div id="roster-fields"></div>
+
+          <div class="self-row">
+            <span class="self-tag">You</span>
+            <span class="self-name" id="roster-self"></span>
+          </div>
+
+          <p class="error" data-error-for="roster"></p>
+
+          <div class="actions">
+            <button type="button" class="btn btn-ghost" data-go="info">Back</button>
+            <button type="submit" class="btn btn-primary">Next</button>
+          </div>
+        </form>
       </section>
 
-      <!-- ============ SURVEY (stage 4) ============ -->
+      <!-- ============ SURVEY ============ -->
       <section class="screen" data-screen="survey" hidden>
-        <h2>Survey</h2>
-        <p class="stub-note">Stage 4 &mdash; the ten survey items and the rating table will live here.</p>
+        <p class="lede" id="survey-instruction"></p>
+
+        <nav class="item-nav" id="item-nav" aria-label="Jump to survey item"></nav>
+
+        <h2 id="item-heading"></h2>
+        <p class="item-text" id="item-text"></p>
+
+        <div class="table-wrap">
+          <table class="rating-table" id="rating-table"></table>
+        </div>
+
+        <p class="error" data-error-for="ratings"></p>
+
         <div class="actions">
-          <button type="button" class="btn btn-ghost" data-go="teammates">Back</button>
-          <button type="button" class="btn btn-primary" data-go="summary">Next</button>
+          <button type="button" class="btn btn-ghost" id="item-prev">Back</button>
+          <button type="button" class="btn btn-primary" id="item-next">Next</button>
         </div>
       </section>
 
