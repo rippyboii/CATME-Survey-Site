@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CATME Peer Evaluation &mdash; ENGR1000J</title>
+  <title>CATME Peer Evaluation - ENGR1000J</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -17,7 +17,7 @@
     <nav class="progress" id="progress" aria-label="Progress">
       <ol>
         <li data-step="info"><span class="dot">1</span><span class="label">Your details</span></li>
-        <li data-step="teammates"><span class="dot">2</span><span class="label">Team roster</span></li>
+        <li data-step="teammates"><span class="dot">2</span><span class="label">Team members</span></li>
         <li data-step="survey"><span class="dot">3</span><span class="label">Survey</span></li>
         <li data-step="summary"><span class="dot">4</span><span class="label">Summary</span></li>
       </ol>
@@ -40,25 +40,37 @@
           <li><strong>At the end you will be prompted to download a PDF file that you need to turn in to the Canvas.</strong></li>
           <li> Please refer to the Teaching Team, if you need any assitance while completing the survey.</li>
         </ul>
+        <div class="confirm-box">
+          <label class="confirm-label">
+            <input type="checkbox" id="start-check">
+            <span>I understand the instructions above, and I am ready to evaluate
+                  my team honestly.</span>
+          </label>
+        </div>
+
         <div class="actions">
-          <button type="button" class="btn btn-primary" data-go="info">Start</button>
+          <button type="button" class="btn btn-primary" id="start-btn" data-go="info" disabled>
+            Start
+          </button>
         </div>
       </section>
 
       <!-- STUDENT DETAILS  -->
       <section class="screen" data-screen="info" hidden>
         <h2>Your details</h2>
+        <p class="hint">Fields marked <span class="req">*</span> are required.</p>
         <form id="info-form" novalidate>
 
           <div class="field">
-            <label for="f-name">Full name</label>
-            <input type="text" id="f-name" name="name" autocomplete="name" placeholder="e.g. Zhang Wei">
+            <label for="f-name">Full name <span class="req" aria-hidden="true">*</span></label>
+            <input type="text" id="f-name" name="name" required autocomplete="name" placeholder="e.g. Zhang Wei">
             <p class="error" data-error-for="name"></p>
           </div>
 
           <div class="field">
-            <label for="f-studentId">SJTU student ID</label>
-            <input type="text" id="f-studentId" name="studentId" inputmode="numeric" placeholder="e.g. 523370910001">
+            <label for="f-studentId">SJTU student ID <span class="req" aria-hidden="true">*</span></label>
+            <input type="text" id="f-studentId" name="studentId" required inputmode="numeric" placeholder="e.g. 523370910001">
+            <p class="hint">12 digits, starting with 5.</p>
             <p class="error" data-error-for="studentId"></p>
           </div>
 
@@ -69,14 +81,14 @@
           </div>
 
           <div class="field">
-            <label for="f-teamId">Team ID</label>
-            <input type="text" id="f-teamId" name="teamId" placeholder="e.g. Team 02">
+            <label for="f-teamId">Team ID <span class="req" aria-hidden="true">*</span></label>
+            <input type="text" id="f-teamId" name="teamId" required placeholder="e.g. Team 02">
             <p class="error" data-error-for="teamId"></p>
           </div>
 
           <div class="field">
-            <label for="f-teammateCount">Number of team members, <em>excluding</em> yourself</label>
-            <input type="number" id="f-teammateCount" name="teammateCount" min="1" max="15" step="1" placeholder="e.g. 3">
+            <label for="f-teammateCount">Number of team members, <em>excluding</em> yourself <span class="req" aria-hidden="true">*</span></label>
+            <input type="number" id="f-teammateCount" name="teammateCount" required min="1" max="15" step="1" placeholder="e.g. 3">
             <p class="hint">You will type each teammate&rsquo;s name on the next screen.</p>
             <p class="error" data-error-for="teammateCount"></p>
           </div>
@@ -88,19 +100,19 @@
         </form>
       </section>
 
-      <!-- ============ TEAM ROSTER ============ -->
+      <!--  TEAM members  -->
       <section class="screen" data-screen="teammates" hidden>
-        <h2>Team roster</h2>
-        <p class="lede" id="roster-lede"></p>
-        <form id="roster-form" novalidate>
-          <div id="roster-fields"></div>
+        <h2>Team members</h2>
+        <p class="lede" id="members-lede"></p>
+        <form id="members-form" novalidate>
+          <div id="members-fields"></div>
 
           <div class="self-row">
             <span class="self-tag">You</span>
-            <span class="self-name" id="roster-self"></span>
+            <span class="self-name" id="members-self"></span>
           </div>
 
-          <p class="error" data-error-for="roster"></p>
+          <p class="error" data-error-for="members"></p>
 
           <div class="actions">
             <button type="button" class="btn btn-ghost" data-go="info">Back</button>
@@ -109,7 +121,7 @@
         </form>
       </section>
 
-      <!-- ============ SURVEY ============ -->
+      <!--  SURVEY  -->
       <section class="screen" data-screen="survey" hidden>
         <p class="lede" id="survey-instruction"></p>
 
@@ -130,12 +142,51 @@
         </div>
       </section>
 
-      <!-- ============ SUMMARY (stage 5) ============ -->
+      <!--  SUMMARY  -->
       <section class="screen" data-screen="summary" hidden>
-        <h2>Summary</h2>
-        <p class="stub-note">Stage 5 &mdash; summary of all ratings, normalised scores, and the PDF button.</p>
+        <h2>Review and confirm</h2>
+        <p class="lede">
+          Check every rating below. Once you are happy with it, confirm and download
+          the PDF, then turn that file in on Canvas.
+        </p>
+
+        <h3 class="section-title">Your details</h3>
+        <dl class="detail-grid" id="summary-details"></dl>
+
+        <h3 class="section-title">Normalised scores</h3>
+        <p class="hint" id="score-note"></p>
+        <div class="table-wrap">
+          <table class="score-table" id="score-table"></table>
+        </div>
+
+        <h3 class="section-title">Share of work</h3>
+        <p class="hint" id="pie-note"></p>
+        <div class="pie-block">
+          <div class="pie-figure" id="pie-figure"></div>
+          <ul class="pie-legend" id="pie-legend"></ul>
+        </div>
+
+        <h3 class="section-title">Your responses</h3>
+        <p class="hint">Every rating you chose, exactly as recorded.</p>
+        <div class="table-wrap">
+          <table class="rating-table matrix" id="matrix-table"></table>
+        </div>
+        <p class="legend" id="scale-legend"></p>
+
+        <div class="confirm-box">
+          <label class="confirm-label">
+            <input type="checkbox" id="confirm-check">
+            <span>I confirm that the ratings above are my own honest evaluation of my team.</span>
+          </label>
+          <p class="error" data-error-for="confirm"></p>
+          <p class="ok-note" id="pdf-note" hidden></p>
+        </div>
+
         <div class="actions">
-          <button type="button" class="btn btn-ghost" data-go="survey">Back</button>
+          <button type="button" class="btn btn-ghost" data-go="survey">Back to survey</button>
+          <button type="button" class="btn btn-primary" id="download-pdf" disabled>
+            Confirm &amp; download PDF
+          </button>
         </div>
       </section>
 
@@ -146,6 +197,8 @@
     </footer>
 
   </div>
+  <script src="vendor/jspdf.umd.min.js"></script>
+  <script src="vendor/jspdf.plugin.autotable.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
