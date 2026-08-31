@@ -542,16 +542,22 @@
     if (shares.length <= SLICE_COLOURS.length) {
       return shares.map((s, i) => Object.assign(s, { colour: SLICE_COLOURS[i] }));
     }
-    // Fold the tail rather than repeat a colour.
-    const kept = shares.slice(0, SLICE_COLOURS.length - 1)
+    // Fold the tail rather than repeat a colour, but never fold the student:
+    // their own slice has to stay visible.
+    const self  = shares[shares.length - 1];
+    const mates = shares.slice(0, -1);
+    const room  = SLICE_COLOURS.length - 2;   // leaving space for Other and the student
+
+    const kept = mates.slice(0, room)
       .map((s, i) => Object.assign(s, { colour: SLICE_COLOURS[i] }));
-    const rest = shares.slice(SLICE_COLOURS.length - 1);
+    const rest = mates.slice(room);
     kept.push({
       name: 'Other (' + rest.length + ' members)',
       isSelf: false,
       share: rest.reduce((sum, s) => sum + s.share, 0),
       colour: OTHER_COLOUR
     });
+    kept.push(Object.assign(self, { colour: SLICE_COLOURS[room] }));
     return kept;
   }
 
@@ -593,20 +599,21 @@
 
   // Summary rendering
 
-  function detailRows() {
+  function detailRows(addressStudent) {
     const s = state.student;
     return [
       ['Name', s.name],
       ['Student ID', s.studentId],
       ['Course', s.courseCode],
       ['Team', s.teamId],
-      ['Team size', state.members.length + ' members (including you)'],
+      ['Team size', state.members.length + ' members' +
+                    (addressStudent ? ' (including you)' : '')],
       ['Completed', stamp(state.completedAt)]
     ];
   }
 
   function renderDetails() {
-    $('#summary-details').innerHTML = detailRows().map(pair =>
+    $('#summary-details').innerHTML = detailRows(true).map(pair =>
       '<div class="detail-pair"><dt>' + esc(pair[0]) + '</dt>' +
       '<dd>' + esc(pair[1]) + '</dd></div>'
     ).join('');
@@ -687,6 +694,9 @@
       .map(clean).filter(Boolean).join('_') + '.pdf';
   }
 
+  // An autoTable cell the reader should notice: the student's own line.
+  const bold = text => ({ content: text, styles: { fontStyle: 'bold' } });
+
   function hexToRgb(hex) {
     const n = parseInt(hex.slice(1), 16);
     return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
@@ -760,7 +770,7 @@
       margin: { left: M, right: M, top: 96, bottom: 62 },
       styles: { fontSize: 10, cellPadding: 3, textColor: 40 },
       columnStyles: { 0: { fontStyle: 'bold', cellWidth: 110 } },
-      body: detailRows()
+      body: detailRows(false)
     });
 
     // Normalised scores
@@ -779,7 +789,7 @@
       head: [['Member', 'Mean (of 7)', 'Normalised (of ' + NORMALISED_MAX + ')',
               'Share of work']],
       body: allStats().map((st, i) => [
-        st.member.name + (st.member.isSelf ? '  (you)' : ''),
+        st.member.isSelf ? bold(st.member.name) : st.member.name,
         fix2(st.mean),
         fix2(st.score) + ' / ' + NORMALISED_MAX,
         pct(pdfShares[i].share)
@@ -811,10 +821,10 @@
       const rgb = hexToRgb(s.colour);
       doc.setFillColor(rgb[0], rgb[1], rgb[2]);
       doc.rect(legendX, ly - 7, 9, 9, 'F');
-      doc.setFont('helvetica', 'normal');
+      doc.setFont('helvetica', s.isSelf ? 'bold' : 'normal');
       doc.setFontSize(9);
       doc.setTextColor(40);
-      doc.text(s.name + (s.isSelf ? ' (you)' : ''), legendX + 16, ly);
+      doc.text(s.name, legendX + 16, ly);
       doc.text(pct(s.share), pageW - M, ly, { align: 'right' });
       ly += 16;
     });
@@ -839,11 +849,12 @@
       headStyles: { fillColor: [240, 241, 243], textColor: 30, fontStyle: 'bold',
                     halign: 'center' },
       columnStyles: Object.assign({ 0: { halign: 'left', cellWidth: 200 } }, memberCols),
-      head: [['Survey item'].concat(state.members.map(m =>
-        m.name + (m.isSelf ? ' (you)' : '')))],
+      head: [['Survey item'].concat(state.members.map(m => m.name))],
       body: SURVEY_ITEMS.map((text, i) => {
         const row = ensureRatings(i);
-        return [(i + 1) + '. ' + text].concat(state.members.map((m, mi) => String(row[mi])));
+        return [(i + 1) + '. ' + text].concat(state.members.map((m, mi) =>
+          m.isSelf ? bold(String(row[mi])) : String(row[mi])
+        ));
       })
     });
 
