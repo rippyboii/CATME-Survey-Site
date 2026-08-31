@@ -1,6 +1,4 @@
-/* ============================================================
-   CATME Survey Site - base styles
-   ============================================================ */
+/* Styles for the ENGR1000J peer evaluation survey. */
 
 :root {
   --bg:        #f4f5f7;
@@ -39,9 +37,20 @@ body {
 /* ---------- header ---------- */
 
 .app-header {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
   margin-bottom: 28px;
 }
+
+.app-logo {
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
+}
+
+.app-titles { text-align: left; }
 
 .app-header h1 {
   margin: 0;
@@ -239,7 +248,14 @@ body {
   font-size: .78rem;
 }
 
-/* ---------- lede + members (stage 3) ---------- */
+.app-footer p { margin: 4px 0; }
+
+.copyright {
+  font-size: .72rem;
+  opacity: .85;
+}
+
+/* ---------- team members ---------- */
 
 .lede {
   margin: 0 0 20px;
@@ -271,7 +287,7 @@ body {
 
 .self-name { font-weight: 600; }
 
-/* ---------- item navigation (stage 4) ---------- */
+/* ---------- item navigation ---------- */
 
 .item-nav {
   display: flex;
@@ -323,7 +339,7 @@ body {
   font-weight: 600;
 }
 
-/* ---------- rating table (stage 4) ---------- */
+/* ---------- rating table ---------- */
 
 .table-wrap {
   overflow-x: auto;
@@ -420,7 +436,7 @@ body {
   outline-offset: 2px;
 }
 
-/* ---------- summary (stage 5) ---------- */
+/* ---------- summary ---------- */
 
 .section-title {
   margin: 30px 0 8px;
@@ -630,6 +646,9 @@ body {
 
 @media (max-width: 620px) {
   .app { padding: 20px 12px 48px; }
+  .app-header { flex-direction: column; gap: 10px; text-align: center; }
+  .app-titles { text-align: center; }
+  .app-logo { width: 48px; height: 48px; flex-basis: 48px; }
   .screen { padding: 20px 16px; }
   .progress .label { display: none; }
   .progress li { justify-content: center; }

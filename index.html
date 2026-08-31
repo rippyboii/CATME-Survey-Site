@@ -10,8 +10,12 @@
   <div class="app">
 
     <header class="app-header">
-      <h1>Team Member Effectiveness Survey</h1>
-      <p class="app-sub">Peer &amp; self evaluation</p>
+      <img class="app-logo" src="assets/logo.png"
+           alt="Shanghai Jiao Tong University">
+      <div class="app-titles">
+        <h1>Team Member Effectiveness Survey</h1>
+        <p class="app-sub">Global College &middot; ENGR1000J</p>
+      </div>
     </header>
 
     <nav class="progress" id="progress" aria-label="Progress">
@@ -25,7 +29,7 @@
 
     <main id="screens">
 
-      <!-- WELCOME PAGE -->
+      <!-- welcome -->
 
       <section class="screen" data-screen="welcome" hidden>
         <h2>Before you begin</h2>
@@ -55,7 +59,7 @@
         </div>
       </section>
 
-      <!-- STUDENT DETAILS  -->
+      <!-- student details -->
       <section class="screen" data-screen="info" hidden>
         <h2>Your details</h2>
         <p class="hint">Fields marked <span class="req">*</span> are required.</p>
@@ -100,7 +104,7 @@
         </form>
       </section>
 
-      <!--  TEAM members  -->
+      <!-- team members -->
       <section class="screen" data-screen="teammates" hidden>
         <h2>Team members</h2>
         <p class="lede" id="members-lede"></p>
@@ -121,7 +125,7 @@
         </form>
       </section>
 
-      <!--  SURVEY  -->
+      <!-- survey -->
       <section class="screen" data-screen="survey" hidden>
         <p class="lede" id="survey-instruction"></p>
 
@@ -142,7 +146,7 @@
         </div>
       </section>
 
-      <!--  SUMMARY  -->
+      <!-- summary -->
       <section class="screen" data-screen="summary" hidden>
         <h2>Review and confirm</h2>
         <p class="lede">
@@ -193,10 +197,15 @@
     </main>
 
     <footer class="app-footer">
-      <p>ENGR1000J &middot; All answers stay in your browser.</p>
+      <p>All answers stay in your browser.</p>
+      <p class="copyright">
+        &copy; <span id="year"></span> Teaching Team, ENGR1000J &middot;
+        Global College, Shanghai Jiao Tong University. All rights reserved.
+      </p>
     </footer>
 
   </div>
+  <script src="assets/logo-data.js"></script>
   <script src="vendor/jspdf.umd.min.js"></script>
   <script src="vendor/jspdf.plugin.autotable.min.js"></script>
   <script src="app.js"></script>

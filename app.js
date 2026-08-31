@@ -1,33 +1,22 @@
-/* ============================================================
-   CATME Survey Site
-   Stage 1 - screen router + shared state
-   Stage 2 - student details form
-   Stage 3 - team members
-   Stage 4 - the ten survey items and the rating table
-   Stage 5 - summary of the responses
-   Stage 6 - PDF export
-   ============================================================ */
+/*
+  Peer and self evaluation survey for ENGR1000J.
+  Five screens, one state object, and a PDF at the end. Nothing leaves the browser.
+*/
 
 (function () {
   'use strict';
 
-  /* ============================================================
-     CONTENT - edit these two lists to change the survey itself
-     ============================================================ */
-
-  // TODO: placeholder wording. Replace with the real ENGR1000J items.
-  // Add or remove entries freely; everything else adapts to the count.
   const SURVEY_ITEMS = [
     'Did a fair share of the team’s work.',
-    'Completed assigned tasks on time.',
-    'Communicated ideas clearly to the rest of the team.',
-    'Listened to and considered other members’ viewpoints.',
-    'Helped teammates who were struggling with their tasks.',
-    'Came to meetings prepared and stayed engaged.',
-    'Delivered work that met the team’s quality standards.',
-    'Kept the team informed about progress and problems.',
-    'Helped the team resolve disagreements constructively.',
-    'Had the knowledge and skills needed for their part of the project.'
+    'Came to team meetings prepared.',
+    'Completed work in a timely manner.',
+    'Communicated effectively.',
+    'Facilitated effective communication in the team.',
+    'Accepted feedback about strengths and weaknesses from teammates.',
+    'Motivated others on the team to do their best.',
+    'Made sure that everyone on the team understood important information.',
+    'Believed that the team could produce high-quality work.',
+    'Had enough knowledge of teammates’ jobs to be able to fill in if necessary.'
   ];
 
   const SCALE = [
@@ -40,11 +29,13 @@
     { value: 7, label: 'Strongly Agree' }
   ];
 
-  // Ratings are collected on a 1-7 Likert scale. "Normalised" here means that
-  // scale shifted onto 0-6: a mean of 1 becomes 0 and a mean of 7 becomes 6.
-  // Swap this one function if the course wants a different definition.
+  // The normalised score is the 1-7 mean shifted onto 0-6.
   const NORMALISED_MAX = 6;
   const normaliseScore = mean => mean - 1;
+
+  const COPYRIGHT = '\u00a9 ' + new Date().getFullYear() +
+    ' Teaching Team, ENGR1000J - Global College, Shanghai Jiao Tong University.' +
+    ' All rights reserved.';
 
   // jsPDF's built-in fonts cannot draw CJK glyphs, so names must stay Latin.
   const PDF_SAFE = /^[\u0020-\u007E\u00A0-\u00FF\u2018\u2019\u201C\u201D\u2013\u2014]*$/;
@@ -52,7 +43,7 @@
   const LATIN_ONLY_MSG =
     'Please write the name in Latin letters (pinyin): the PDF cannot print Chinese characters.';
 
-  /* ---------- tiny helpers ---------- */
+  // Helpers
 
   const $  = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -61,13 +52,10 @@
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
   ));
 
-  // "  Zhang   Wei " -> "zhang wei", for duplicate detection only.
+  // "  Zhang   Wei " -> "zhang wei", for the duplicate check.
   const normalise = str => str.trim().toLowerCase().replace(/\s+/g, ' ');
 
-  /* ============================================================
-     APPLICATION STATE
-     Every screen reads from and writes to this single object.
-     ============================================================ */
+  // Everything the survey collects. Each screen reads and writes this.
 
   const state = {
     student: {
@@ -77,20 +65,18 @@
       teamId: '',
       teammateCount: null
     },
-    teammates: [],       // names of the N teammates, in entry order
-    members: [],          // [{ name, isSelf }] - teammates first, then the student
-    ratings: {},         // ratings[itemIndex] = [ratingPerMember]  (null = unanswered)
-    currentItem: 0,      // which survey item is on screen
-    maxItemReached: 0    // furthest item unlocked, so earlier ones stay revisitable
+    teammates: [],       // the N names as typed
+    members: [],         // [{ name, isSelf }], teammates first, then the student
+    ratings: {},         // ratings[item] = one rating per member, null until answered
+    currentItem: 0,
+    maxItemReached: 0    // how far they got, so earlier items stay reachable
   };
 
-  /* ============================================================
-     SCREEN ROUTER
-     ============================================================ */
+  // Screen router
 
   const ORDER = ['welcome', 'info', 'teammates', 'survey', 'summary'];
 
-  // Optional hooks: guards run before a screen is shown, onEnter after.
+  // guards run before a screen is shown, onEnter hooks after.
   const onEnter = {};
   const guards  = {};
 
@@ -99,7 +85,7 @@
       console.warn('Unknown screen:', name);
       return;
     }
-    // A guard may redirect - e.g. reaching the survey with no members yet.
+    // A guard can send them somewhere else, e.g. the survey with no team yet.
     if (guards[name]) {
       const redirect = guards[name]();
       if (redirect) return showScreen(redirect);
@@ -127,7 +113,7 @@
     if (btn) showScreen(btn.dataset.go);
   });
 
-  /* ---------- validation helpers ---------- */
+  // Validation helpers
 
   function setError(scope, fieldName, message) {
     const input = scope.querySelector('[name="' + fieldName + '"]');
@@ -141,9 +127,7 @@
     $$('.invalid', scope).forEach(el => el.classList.remove('invalid'));
   }
 
-  /* ============================================================
-     STAGE 1b - the student must acknowledge the instructions
-     ============================================================ */
+  // The Start button waits for the acknowledgement.
 
   const startCheck = $('#start-check');
   const startBtn   = $('#start-btn');
@@ -152,9 +136,7 @@
     startBtn.disabled = !startCheck.checked;
   });
 
-  /* ============================================================
-     STAGE 2 - student details
-     ============================================================ */
+  // Student details
 
   const infoForm = $('#info-form');
 
@@ -222,7 +204,7 @@
 
     const count = Number(values.teammateCount);
 
-    // Changing the team size invalidates any names already collected.
+    // A different team size invalidates the names already typed.
     if (state.student.teammateCount !== null && state.student.teammateCount !== count) {
       state.teammates.length = count;
     }
@@ -238,13 +220,13 @@
     showScreen('teammates');
   });
 
-  // Clear a field's error as soon as the student fixes it.
+  // Clear the error as soon as they start fixing the field.
   infoForm.addEventListener('input', ev => {
     const key = ev.target.name;
     if (RULES[key]) setError(infoForm, key, '');
   });
 
-  // Re-entering the screen restores whatever was entered before.
+  // Coming back to this screen restores what was typed before.
   onEnter.info = function () {
     const s = state.student;
     if (s.name)      infoForm.elements.name.value = s.name;
@@ -257,9 +239,7 @@
     clearErrors(infoForm);
   };
 
-  /* ============================================================
-     STAGE 3 - team members
-     ============================================================ */
+  // Team members
 
   const membersForm = $('#members-form');
 
@@ -294,7 +274,7 @@
 
   function validatemembers(names) {
     let firstBad = null;
-    const seen = new Map();          // normalised name -> who claimed it first
+    const seen = new Map();          // normalised name -> who used it first
     seen.set(normalise(state.student.name), 'you');
 
     names.forEach((name, i) => {
@@ -338,7 +318,7 @@
       .map(name => ({ name: name, isSelf: false }))
       .concat([{ name: state.student.name, isSelf: true }]);
 
-    // Ratings are stored by column index, so a resized members invalidates them.
+    // Ratings are keyed by column, so a resized team invalidates them.
     if (nextmembers.length !== state.members.length) {
       state.ratings = {};
       state.currentItem = 0;
@@ -353,9 +333,7 @@
     if (ev.target.name) setError(membersForm, ev.target.name, '');
   });
 
-  /* ============================================================
-     STAGE 4 - survey items and rating table
-     ============================================================ */
+  // Survey items and the rating table
 
   const surveyScreen = $('[data-screen="survey"]');
   const itemNav      = $('#item-nav');
@@ -363,7 +341,7 @@
 
   guards.survey = () => (state.members.length === 0 ? 'teammates' : null);
 
-  // ratings[item] is an array with one slot per members member.
+  // One slot per member, created on demand.
   function ensureRatings(item) {
     if (!Array.isArray(state.ratings[item]) ||
         state.ratings[item].length !== state.members.length) {
@@ -381,7 +359,7 @@
       .map(m => (m.isSelf ? 'yourself' : m.name));
   }
 
-  /* ---------- rendering ---------- */
+  // Rendering
 
   function renderInstruction() {
     $('#survey-instruction').innerHTML =
@@ -407,7 +385,7 @@
     }).join('');
   }
 
-  // Rows are the rating scale; columns are the team members.
+  // Scale down the rows, members across the columns.
   function renderTable() {
     const item = state.currentItem;
     const row  = ensureRatings(item);
@@ -461,7 +439,7 @@
     renderItem();
   };
 
-  /* ---------- interaction ---------- */
+  // Interaction
 
   itemTable.addEventListener('change', ev => {
     const input = ev.target;
@@ -498,9 +476,7 @@
     renderItem();
   });
 
-  /* ============================================================
-     STAGE 5 - summary
-     ============================================================ */
+  // Summary
 
   const summaryScreen = $('[data-screen="summary"]');
   const confirmCheck  = $('#confirm-check');
@@ -508,7 +484,7 @@
 
   guards.summary = function () {
     if (state.members.length === 0) return 'teammates';
-    // Defensive: never summarise a half-finished survey.
+    // Never summarise a half-finished survey.
     const gap = SURVEY_ITEMS.findIndex((_, i) => !isRated(i));
     if (gap !== -1) {
       state.currentItem = gap;
@@ -523,7 +499,7 @@
            ' ' + pad(date.getHours()) + ':' + pad(date.getMinutes());
   }
 
-  // One member's ratings across every survey item.
+  // One member's ratings across all the items.
   function memberStats(mi) {
     let total = 0;
     SURVEY_ITEMS.forEach((_, item) => { total += ensureRatings(item)[mi]; });
@@ -536,9 +512,9 @@
 
   const fix2 = n => (n === null ? '-' : n.toFixed(2));
 
-  /* ---------- share of work ---------- */
+  // Share of work
 
-  // A fixed categorical order, assigned by position and never cycled.
+  // Assigned by position, never reused: two members never share a colour.
   const SLICE_COLOURS = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100',
                          '#e87ba4', '#008300', '#4a3aa7', '#e34948'];
   const OTHER_COLOUR = '#9aa1ab';
@@ -546,8 +522,8 @@
 
   const pct = share => (share * 100).toFixed(1) + '%';
 
-  // Share of work = one member's rating total over the whole team's total.
-  // One entry per member, in roster order: what the tables need.
+  // A member's rating total over the team's total. One entry per member,
+  // in roster order, which is what the tables need.
   function memberShares() {
     const stats = allStats();
     const grand = stats.reduce((sum, st) => sum + st.total, 0);
@@ -558,15 +534,15 @@
     }));
   }
 
-  // The pie's slices. Same numbers, but a team bigger than the palette folds
-  // its tail into one slice, so this no longer lines up with the roster.
+  // The same numbers as slices. A team bigger than the palette folds its tail
+  // into one slice, so this no longer lines up with the roster.
   function workShares() {
     const shares = memberShares();
 
     if (shares.length <= SLICE_COLOURS.length) {
       return shares.map((s, i) => Object.assign(s, { colour: SLICE_COLOURS[i] }));
     }
-    // Past the palette the tail folds into one slice rather than repeating a hue.
+    // Fold the tail rather than repeat a colour.
     const kept = shares.slice(0, SLICE_COLOURS.length - 1)
       .map((s, i) => Object.assign(s, { colour: SLICE_COLOURS[i] }));
     const rest = shares.slice(SLICE_COLOURS.length - 1);
@@ -615,7 +591,7 @@
       'Each member\'s rating total as a share of the team total, from your answers alone.';
   }
 
-  /* ---------- summary rendering ---------- */
+  // Summary rendering
 
   function detailRows() {
     const s = state.student;
@@ -699,14 +675,12 @@
     setError(summaryScreen, 'confirm', '');
   });
 
-  /* ============================================================
-     STAGE 6 - PDF export
-     ============================================================ */
+  // PDF export
 
   // COURSE_TEAM ID_STUDENT ID_STUDENT NAME.pdf
   function pdfFileName() {
     const clean = str => String(str).trim()
-      .replace(/[\\/:*?"<>|]/g, '')   // characters Windows will not accept
+      .replace(/[\\/:*?"<>|]/g, '')   // characters Windows rejects
       .replace(/\s+/g, ' ');
     return [state.student.courseCode, state.student.teamId,
             state.student.studentId, state.student.name]
@@ -718,9 +692,9 @@
     return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
   }
 
-  // The same pie the summary shows, drawn on a canvas so jsPDF can embed it.
+  // The summary pie again, on a canvas so jsPDF can embed it.
   function pieImage(slices, px) {
-    const scale  = 3;                       // oversample so print stays crisp
+    const scale  = 3;                       // oversample so it stays sharp in print
     const canvas = document.createElement('canvas');
     canvas.width = canvas.height = px * scale;
     const ctx = canvas.getContext('2d');
@@ -755,7 +729,7 @@
     const pageW = doc.internal.pageSize.getWidth();
     const pageH = doc.internal.pageSize.getHeight();
 
-    /* --- header --- */
+    // Header
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(15);
     doc.text('Team Member Effectiveness Survey', M, 58);
@@ -763,7 +737,8 @@
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
     doc.setTextColor(110);
-    doc.text('Peer & self evaluation - ' + state.student.courseCode, M, 75);
+    doc.text('Global College - ' + state.student.courseCode +
+             ' - peer and self evaluation', M, 75);
 
     doc.setDrawColor(200);
     doc.line(M, 86, pageW - M, 86);
@@ -777,24 +752,24 @@
       return y + 10;
     };
 
-    /* --- student details --- */
+    // Student details
     let y = heading('Student details', 110);
     doc.autoTable({
       startY: y,
       theme: 'plain',
-      margin: { left: M, right: M },
+      margin: { left: M, right: M, top: 96, bottom: 62 },
       styles: { fontSize: 10, cellPadding: 3, textColor: 40 },
       columnStyles: { 0: { fontStyle: 'bold', cellWidth: 110 } },
       body: detailRows()
     });
 
-    /* --- normalised scores --- */
+    // Normalised scores
     const pdfShares = memberShares();
     y = heading('Normalised scores', doc.lastAutoTable.finalY + 26);
     doc.autoTable({
       startY: y,
       theme: 'grid',
-      margin: { left: M, right: M },
+      margin: { left: M, right: M, top: 96, bottom: 62 },
       styles: { fontSize: 9, cellPadding: 5, lineColor: 210, textColor: 40 },
       headStyles: { fillColor: [240, 241, 243], textColor: 30, fontStyle: 'bold' },
       columnStyles: {
@@ -817,7 +792,7 @@
     doc.text(' ',
              M, doc.lastAutoTable.finalY + 14);
 
-    /* --- share of work --- */
+    // Share of work
     y = heading('Share of work', doc.lastAutoTable.finalY + 38);
     const slices  = workShares();
     const pieSize = 132;
@@ -849,7 +824,7 @@
     doc.text(" ",
              M, y + pieSize + 22);
 
-    /* --- every rating, for reference --- */
+    // Every rating, for reference
     y = heading('All responses', Math.max(y + pieSize + 22, ly) + 26);
     const memberCols = {};
     state.members.forEach((m, i) => {
@@ -858,7 +833,7 @@
     doc.autoTable({
       startY: y,
       theme: 'grid',
-      margin: { left: M, right: M },
+      margin: { left: M, right: M, top: 96, bottom: 62 },
       styles: { fontSize: 8, cellPadding: 4, lineColor: 210, textColor: 40,
                 overflow: 'linebreak' },
       headStyles: { fillColor: [240, 241, 243], textColor: 30, fontStyle: 'bold',
@@ -878,16 +853,25 @@
     const legend = 'Scale:  ' + SCALE.map(s => s.value + ' = ' + s.label).join('   ');
     doc.text(doc.splitTextToSize(legend, pageW - M * 2), M, doc.lastAutoTable.finalY + 14);
 
-    /* --- footer on every page --- */
+    // Footer on every page
     const pages = doc.getNumberOfPages();
     for (let i = 1; i <= pages; i++) {
       doc.setPage(i);
+
+      if (window.LOGO_PNG) {
+        doc.addImage(window.LOGO_PNG, 'PNG', pageW - M - 44, 34, 44, 44);
+      }
+
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(8);
       doc.setTextColor(140);
       doc.text(state.student.name + ' - ' + state.student.teamId +
-               ' - generated ' + stamp(state.completedAt), M, pageH - 26);
-      doc.text('Page ' + i + ' of ' + pages, pageW - M, pageH - 26, { align: 'right' });
+               ' - generated ' + stamp(state.completedAt), M, pageH - 38);
+      doc.text('Page ' + i + ' of ' + pages, pageW - M, pageH - 38, { align: 'right' });
+
+      doc.setFontSize(7);
+      doc.setTextColor(165);
+      doc.text(COPYRIGHT, pageW / 2, pageH - 24, { align: 'center' });
     }
 
     return doc;
@@ -911,15 +895,13 @@
     }
   });
 
-  /* ============================================================
-     BOOT
-     ============================================================ */
-
-  // Exposed for console poking while the later stages are built.
+  // Handy from the console when something looks wrong.
   window.CATME = {
     state: state, showScreen: showScreen, buildPdf: buildPdf,
     SURVEY_ITEMS: SURVEY_ITEMS, SCALE: SCALE
   };
+
+  $('#year').textContent = new Date().getFullYear();
 
   showScreen('welcome');
 })();
