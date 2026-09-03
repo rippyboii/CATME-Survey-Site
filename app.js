@@ -14,65 +14,29 @@
       pick: 3,
       items: [
         'Did a fair share of the team’s work.',
-        'Carried at least a fair share of the team’s workload.',
-        'Did an acceptable portion of the team’s work.',
         'Fulfilled responsibilities to the team.',
-        'Kept commitments to the team.',
-        'Followed through on obligations to the team.',
         'Came to team meetings prepared.',
-        'Arrived on time for team meetings.',
-        'Prepared for meetings ahead of time.',
         'Completed work in a timely manner.',
-        'Did assigned tasks by the time the team needed the work.',
-        'Completed team assignments by the due date.',
         'Did work that was complete and accurate.',
-        'Used care when completing work for the team.',
-        'Carefully completed tasks assigned by the team.',
         'Made important contributions to the team’s final product.',
-        'Provided insights and ideas that improved the team project.',
-        'Made recommendations that improved the team’s performance.',
         'Kept trying when faced with difficult situations.',
-        'Remained effective under pressure.',
-        'Did not give up when faced with a challenge.',
         'Offered to help teammates when it was appropriate.',
-        'Helped other team members when they needed assistance.',
-        'Helped teammates who were having difficulty.'
       ]
     },
     {
       category: 'Interacting with teammates',
       pick: 3,
       items: [
-        'Communicated effectively.',
-        'Was specific when communicating information or feelings to teammates.',
-        'Expressed ideas clearly.',
-        'Facilitated effective communication in the team.',
-        'Helped improve communication among team members.',
-        'Facilitated the exchange of ideas among team members.',
-        'Exchanged information with teammates in a timely manner.',
-        'Shared information that affected others on the team.',
-        'Kept other team members informed about work-related issues.',
+        'Communicated effectively.', //1 2 and 3
+        'Facilitated effective communication in the team.', //1 2 and 3
+        'Exchanged information with teammates in a timely manner.', //1 2 and 3
         'Provided encouragement to other team members.',
-        'Was supportive of other team members.',
-        'Helped build teammates’ confidence.',
         'Expressed enthusiasm about working as a team.',
-        'Enjoyed working as a team.',
-        'Enjoyed teamwork.',
         'Heard what teammates had to say about issues that affected the team.',
-        'Listened to teammates who had different perspectives.',
-        'Paid attention to what teammates had to say.',
         'Got team input on important matters before going ahead.',
-        'Gave all team members a chance to participate in team decisions.',
-        'Requested a response from teammates before making important decisions.',
         'Accepted feedback about strengths and weaknesses from teammates.',
-        'Was receptive to constructive criticism from other team members.',
-        'Accepted constructive criticism from other team members.',
         'Used teammates’ feedback to improve performance.',
-        'Took teammates’ feedback seriously.',
-        'Acted on teammates’ constructive criticism.',
         'Let other team members help when it was necessary.',
-        'Allowed teammates to assist when help was needed.',
-        'Asked teammates for help when necessary.'
       ]
     },
     {
@@ -80,26 +44,12 @@
       pick: 2,
       items: [
         'Stayed aware of fellow team members’ progress.',
-        'Monitored teammates to discover effective or ineffective performance.',
-        'Noticed whether or not teammates were doing their job correctly.',
         'Assessed whether the team was making progress as expected.',
-        'Checked whether the team was on the right track.',
-        'Evaluated the team’s work to improve team effectiveness.',
         'Stayed aware of external factors that influenced team performance.',
-        'Monitored external conditions that influenced team success.',
-        'Noticed situations outside the team’s control that affected the team’s performance.',
         'Provided constructive feedback to others on the team.',
-        'Provided feedback to teammates about their strengths and weaknesses.',
-        'Let teammates know how they were performing.',
         'Motivated others on the team to do their best.',
-        'Motivated teammates to do a good job on their part of the team’s work.',
-        'Encouraged others on the team to focus on meeting the team’s objectives.',
         'Made sure that everyone on the team understood important information.',
-        'Checked to make sure everyone was clear on what needed to be done.',
-        'Made sure that everyone on the team knew what they were supposed to do.',
         'Helped the team to plan and organize its work.',
-        'Made sure that the team had the necessary supplies, information, and resources.',
-        'Helped the team to develop clear objectives.'
       ]
     },
     {
@@ -107,11 +57,9 @@
       pick: 1,
       items: [
         'Expected the team to succeed.',
-        'Believed that the team could produce high-quality work.',
-        'Was confident that the team could get a lot done when it worked hard.',
-        'Cared that the team produced high-quality work.',
+        'Believed that the team could produce high-quality work.', //this
+        'Cared that the team produced high-quality work.', // and this
         'Believed that the team should achieve high standards.',
-        'Wanted the team to excel at its work.'
       ]
     },
     {
@@ -120,13 +68,8 @@
       items: [
         'Had the skills and expertise to do excellent work.',
         'Had the skills and abilities that were necessary to do a good job.',
-        'Had the skills necessary to contribute to the team’s work.',
         'Had enough knowledge of teammates’ jobs to be able to fill in if necessary.',
         'Knew how to do the jobs of other team members.',
-        'Was able to perform other team members’ roles.',
-        'Had talents that the team needed and other team members did not have.',
-        'Had skills and abilities that other team members lacked.',
-        'Had different skills and abilities than teammates had.'
       ]
     }
   ];
