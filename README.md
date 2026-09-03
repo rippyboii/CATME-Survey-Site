@@ -27,11 +27,19 @@ tools/                one script, for regenerating the above
 vendor/               jsPDF and its autoTable plugin
 ```
 
-## Changing the survey
+## The questions
 
-The questions and the rating scale are the first two lists in `app.js`. Edit
-`SURVEY_ITEMS` and the rest follows, nothing else counts the items. `SCALE` is the
-1 to 7 scale, and `normaliseScore` is the `mean - 1` that maps a mean onto 0 to 6.
+`ITEM_BANK` at the top of `app.js` holds the item bank from Loughry, Ohland and
+Moore (2007), all ninety items across the five categories the paper identifies.
+Each sitting draws its own ten questions: three from contributing to the team's
+work, three from interacting with teammates, two from keeping the team on track,
+one from expecting quality, one from having relevant knowledge and skills. The
+`pick` on each category is where those numbers live.
+
+A draw is fixed once the page loads, so going back to an earlier question shows
+the same wording. Reloading draws again.
+
+`SCALE` below it is the 1 to 7 scale.
 
 ## Things to know
 
@@ -40,6 +48,9 @@ glyphs, so a name in characters comes out blank in the PDF. The form rejects the
 with a message rather than letting someone find out afterwards.
 
 Student IDs are checked against the 5xxxxxxxxxxx range.
+
+Because the questions are drawn per sitting, two students on the same team will
+usually answer different items. The scores stay comparable, the wording does not.
 
 The pie chart has eight colours and does not reuse them. A team bigger than that
 folds the extra teammates into one grey slice, though the table above the chart

@@ -6,18 +6,146 @@
 (function () {
   'use strict';
 
-  const SURVEY_ITEMS = [
-    'Did a fair share of the team’s work.',
-    'Came to team meetings prepared.',
-    'Completed work in a timely manner.',
-    'Communicated effectively.',
-    'Facilitated effective communication in the team.',
-    'Accepted feedback about strengths and weaknesses from teammates.',
-    'Motivated others on the team to do their best.',
-    'Made sure that everyone on the team understood important information.',
-    'Believed that the team could produce high-quality work.',
-    'Had enough knowledge of teammates’ jobs to be able to fill in if necessary.'
+  // The item bank from Loughry, Ohland and Moore (2007), Table 2. Each sitting
+  // draws its own questions, so pick is how many come from that category.
+  const ITEM_BANK = [
+    {
+      category: 'Contributing to the team’s work',
+      pick: 3,
+      items: [
+        'Did a fair share of the team’s work.',
+        'Carried at least a fair share of the team’s workload.',
+        'Did an acceptable portion of the team’s work.',
+        'Fulfilled responsibilities to the team.',
+        'Kept commitments to the team.',
+        'Followed through on obligations to the team.',
+        'Came to team meetings prepared.',
+        'Arrived on time for team meetings.',
+        'Prepared for meetings ahead of time.',
+        'Completed work in a timely manner.',
+        'Did assigned tasks by the time the team needed the work.',
+        'Completed team assignments by the due date.',
+        'Did work that was complete and accurate.',
+        'Used care when completing work for the team.',
+        'Carefully completed tasks assigned by the team.',
+        'Made important contributions to the team’s final product.',
+        'Provided insights and ideas that improved the team project.',
+        'Made recommendations that improved the team’s performance.',
+        'Kept trying when faced with difficult situations.',
+        'Remained effective under pressure.',
+        'Did not give up when faced with a challenge.',
+        'Offered to help teammates when it was appropriate.',
+        'Helped other team members when they needed assistance.',
+        'Helped teammates who were having difficulty.'
+      ]
+    },
+    {
+      category: 'Interacting with teammates',
+      pick: 3,
+      items: [
+        'Communicated effectively.',
+        'Was specific when communicating information or feelings to teammates.',
+        'Expressed ideas clearly.',
+        'Facilitated effective communication in the team.',
+        'Helped improve communication among team members.',
+        'Facilitated the exchange of ideas among team members.',
+        'Exchanged information with teammates in a timely manner.',
+        'Shared information that affected others on the team.',
+        'Kept other team members informed about work-related issues.',
+        'Provided encouragement to other team members.',
+        'Was supportive of other team members.',
+        'Helped build teammates’ confidence.',
+        'Expressed enthusiasm about working as a team.',
+        'Enjoyed working as a team.',
+        'Enjoyed teamwork.',
+        'Heard what teammates had to say about issues that affected the team.',
+        'Listened to teammates who had different perspectives.',
+        'Paid attention to what teammates had to say.',
+        'Got team input on important matters before going ahead.',
+        'Gave all team members a chance to participate in team decisions.',
+        'Requested a response from teammates before making important decisions.',
+        'Accepted feedback about strengths and weaknesses from teammates.',
+        'Was receptive to constructive criticism from other team members.',
+        'Accepted constructive criticism from other team members.',
+        'Used teammates’ feedback to improve performance.',
+        'Took teammates’ feedback seriously.',
+        'Acted on teammates’ constructive criticism.',
+        'Let other team members help when it was necessary.',
+        'Allowed teammates to assist when help was needed.',
+        'Asked teammates for help when necessary.'
+      ]
+    },
+    {
+      category: 'Keeping the team on track',
+      pick: 2,
+      items: [
+        'Stayed aware of fellow team members’ progress.',
+        'Monitored teammates to discover effective or ineffective performance.',
+        'Noticed whether or not teammates were doing their job correctly.',
+        'Assessed whether the team was making progress as expected.',
+        'Checked whether the team was on the right track.',
+        'Evaluated the team’s work to improve team effectiveness.',
+        'Stayed aware of external factors that influenced team performance.',
+        'Monitored external conditions that influenced team success.',
+        'Noticed situations outside the team’s control that affected the team’s performance.',
+        'Provided constructive feedback to others on the team.',
+        'Provided feedback to teammates about their strengths and weaknesses.',
+        'Let teammates know how they were performing.',
+        'Motivated others on the team to do their best.',
+        'Motivated teammates to do a good job on their part of the team’s work.',
+        'Encouraged others on the team to focus on meeting the team’s objectives.',
+        'Made sure that everyone on the team understood important information.',
+        'Checked to make sure everyone was clear on what needed to be done.',
+        'Made sure that everyone on the team knew what they were supposed to do.',
+        'Helped the team to plan and organize its work.',
+        'Made sure that the team had the necessary supplies, information, and resources.',
+        'Helped the team to develop clear objectives.'
+      ]
+    },
+    {
+      category: 'Expecting quality',
+      pick: 1,
+      items: [
+        'Expected the team to succeed.',
+        'Believed that the team could produce high-quality work.',
+        'Was confident that the team could get a lot done when it worked hard.',
+        'Cared that the team produced high-quality work.',
+        'Believed that the team should achieve high standards.',
+        'Wanted the team to excel at its work.'
+      ]
+    },
+    {
+      category: 'Having relevant knowledge, skills and abilities',
+      pick: 1,
+      items: [
+        'Had the skills and expertise to do excellent work.',
+        'Had the skills and abilities that were necessary to do a good job.',
+        'Had the skills necessary to contribute to the team’s work.',
+        'Had enough knowledge of teammates’ jobs to be able to fill in if necessary.',
+        'Knew how to do the jobs of other team members.',
+        'Was able to perform other team members’ roles.',
+        'Had talents that the team needed and other team members did not have.',
+        'Had skills and abilities that other team members lacked.',
+        'Had different skills and abilities than teammates had.'
+      ]
+    }
   ];
+
+  // Fisher-Yates, on a copy.
+  function sample(list, count) {
+    const pool = list.slice();
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const swap = pool[i]; pool[i] = pool[j]; pool[j] = swap;
+    }
+    return pool.slice(0, count);
+  }
+
+  // This sitting's ten questions, in category order and fixed until reload.
+  const SURVEY_ITEMS = ITEM_BANK.reduce((out, section) => out.concat(
+    sample(section.items, section.pick)
+      .map(text => ({ text: text, category: section.category }))
+  ), []);
 
   const SCALE = [
     { value: 1, label: 'Strongly Disagree' },
@@ -28,10 +156,6 @@
     { value: 6, label: 'Agree' },
     { value: 7, label: 'Strongly Agree' }
   ];
-
-  // The normalised score is the 1-7 mean shifted onto 0-6.
-  const NORMALISED_MAX = 6;
-  const normaliseScore = mean => mean - 1;
 
   const COPYRIGHT = '\u00a9 ' + new Date().getFullYear() +
     ' Teaching Team, ENGR1000J - Global College, Shanghai Jiao Tong University.' +
@@ -369,7 +493,7 @@
   }
 
   function renderItemNav() {
-    itemNav.innerHTML = SURVEY_ITEMS.map((text, i) => {
+    itemNav.innerHTML = SURVEY_ITEMS.map((item, i) => {
       const locked = i > state.maxItemReached;
       const cls = ['item-pill',
         i === state.currentItem ? 'active' : '',
@@ -379,7 +503,7 @@
 
       return '<button type="button" class="' + cls + '" data-item="' + i + '"' +
              (locked ? ' disabled' : '') +
-             ' title="' + esc(text) + '"' +
+             ' title="' + esc(item.text) + '"' +
              ' aria-current="' + (i === state.currentItem) + '">' +
              (i + 1) + '</button>';
     }).join('');
@@ -424,7 +548,8 @@
 
     $('#item-heading').textContent =
       'Survey item #' + (n + 1) + ' of ' + SURVEY_ITEMS.length;
-    $('#item-text').textContent = SURVEY_ITEMS[n];
+    $('#item-text').textContent     = SURVEY_ITEMS[n].text;
+    $('#item-category').textContent = SURVEY_ITEMS[n].category;
 
     $('#item-prev').textContent = n === 0 ? 'Back to team members' : 'Previous item';
     $('#item-next').textContent = n === last ? 'Review answers' : 'Next item';
@@ -504,98 +629,13 @@
     let total = 0;
     SURVEY_ITEMS.forEach((_, item) => { total += ensureRatings(item)[mi]; });
     const mean = total / SURVEY_ITEMS.length;
-    return { total: total, mean: mean, score: normaliseScore(mean) };
+    return { total: total, mean: mean };
   }
 
   const allStats = () =>
     state.members.map((m, i) => Object.assign({ member: m }, memberStats(i)));
 
   const fix2 = n => (n === null ? '-' : n.toFixed(2));
-
-  // Share of work
-
-  // Assigned by position, never reused: two members never share a colour.
-  const SLICE_COLOURS = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100',
-                         '#e87ba4', '#008300', '#4a3aa7', '#e34948'];
-  const OTHER_COLOUR = '#9aa1ab';
-  const SURFACE = '#ffffff';
-
-  const pct = share => (share * 100).toFixed(1) + '%';
-
-  // A member's rating total over the team's total. One entry per member,
-  // in roster order, which is what the tables need.
-  function memberShares() {
-    const stats = allStats();
-    const grand = stats.reduce((sum, st) => sum + st.total, 0);
-    return stats.map(st => ({
-      name: st.member.name,
-      isSelf: st.member.isSelf,
-      share: grand ? st.total / grand : 0
-    }));
-  }
-
-  // The same numbers as slices. A team bigger than the palette folds its tail
-  // into one slice, so this no longer lines up with the roster.
-  function workShares() {
-    const shares = memberShares();
-
-    if (shares.length <= SLICE_COLOURS.length) {
-      return shares.map((s, i) => Object.assign(s, { colour: SLICE_COLOURS[i] }));
-    }
-    // Fold the tail rather than repeat a colour, but never fold the student:
-    // their own slice has to stay visible.
-    const self  = shares[shares.length - 1];
-    const mates = shares.slice(0, -1);
-    const room  = SLICE_COLOURS.length - 2;   // leaving space for Other and the student
-
-    const kept = mates.slice(0, room)
-      .map((s, i) => Object.assign(s, { colour: SLICE_COLOURS[i] }));
-    const rest = mates.slice(room);
-    kept.push({
-      name: 'Other (' + rest.length + ' members)',
-      isSelf: false,
-      share: rest.reduce((sum, s) => sum + s.share, 0),
-      colour: OTHER_COLOUR
-    });
-    kept.push(Object.assign(self, { colour: SLICE_COLOURS[room] }));
-    return kept;
-  }
-
-  function slicePath(cx, cy, r, from, to) {
-    const x1 = cx + r * Math.cos(from), y1 = cy + r * Math.sin(from);
-    const x2 = cx + r * Math.cos(to),   y2 = cy + r * Math.sin(to);
-    const wide = to - from > Math.PI ? 1 : 0;
-    return 'M ' + cx + ' ' + cy + ' L ' + x1.toFixed(2) + ' ' + y1.toFixed(2) +
-           ' A ' + r + ' ' + r + ' 0 ' + wide + ' 1 ' + x2.toFixed(2) + ' ' + y2.toFixed(2) + ' Z';
-  }
-
-  function renderPie() {
-    const slices = workShares();
-    const size = 240, r = 112, cx = size / 2, cy = size / 2;
-
-    let angle = -Math.PI / 2;
-    const paths = slices.map(s => {
-      const sweep = s.share * Math.PI * 2;
-      const d = slicePath(cx, cy, r, angle, angle + sweep);
-      angle += sweep;
-      return '<path d="' + d + '" fill="' + s.colour + '" stroke="' + SURFACE +
-             '" stroke-width="2"><title>' + esc(s.name) + ': ' + pct(s.share) +
-             '</title></path>';
-    }).join('');
-
-    $('#pie-figure').innerHTML =
-      '<svg viewBox="0 0 ' + size + ' ' + size + '" role="img" ' +
-      'aria-label="Share of the team workload by member">' + paths + '</svg>';
-
-    $('#pie-legend').innerHTML = slices.map(s =>
-      '<li><span class="swatch" style="background:' + s.colour + '"></span>' +
-      '<span class="who">' + esc(s.name) + (s.isSelf ? ' (you)' : '') + '</span>' +
-      '<span class="pct">' + pct(s.share) + '</span></li>'
-    ).join('');
-
-    $('#pie-note').textContent =
-      'Each member\'s rating total as a share of the team total, from your answers alone.';
-  }
 
   // Summary rendering
 
@@ -621,44 +661,60 @@
 
   function renderScoreTable() {
     $('#score-note').textContent =
-      'Mean of your 1 to 7 ratings, shifted onto a 0 to ' + NORMALISED_MAX + ' scale.';
+      'Your average rating for each member across all ' + SURVEY_ITEMS.length + ' items.';
 
-    const shares = memberShares();
-
-    const rows = allStats().map((st, i) =>
+    const rows = allStats().map(st =>
       '<tr class="' + (st.member.isSelf ? 'self' : '') + '">' +
       '<th scope="row">' + esc(st.member.name) +
       (st.member.isSelf ? '<span class="you-tag">you</span>' : '') + '</th>' +
-      '<td>' + fix2(st.mean) + '</td>' +
-      '<td class="score">' + fix2(st.score) + ' / ' + NORMALISED_MAX + '</td>' +
-      '<td>' + pct(shares[i].share) + '</td>' +
+      '<td>' + st.total + '</td>' +
+      '<td class="score">' + fix2(st.mean) + ' / 7</td>' +
       '</tr>'
     ).join('');
 
     $('#score-table').innerHTML =
       '<thead><tr>' +
-      '<th scope="col">Member</th><th scope="col">Mean (of 7)</th>' +
-      '<th scope="col">Normalised (of ' + NORMALISED_MAX + ')</th>' +
-      '<th scope="col">Share of work</th>' +
+      '<th scope="col">Member</th>' +
+      '<th scope="col">Total</th>' +
+      '<th scope="col">Mean (of 7)</th>' +
       '</tr></thead><tbody>' + rows + '</tbody>';
   }
 
   function renderMatrix() {
+    const span = state.members.length + 1;
+
     const head = '<thead><tr><th class="item-col" scope="col">Survey item</th>' +
       state.members.map(m =>
         '<th scope="col" class="' + (m.isSelf ? 'self' : '') + '">' + esc(m.name) + '</th>'
       ).join('') + '</tr></thead>';
 
-    const body = '<tbody>' + SURVEY_ITEMS.map((text, i) => {
+    let seen = '';
+    const body = '<tbody>' + SURVEY_ITEMS.map((item, i) => {
       const row = ensureRatings(i);
-      return '<tr><th class="item-col" scope="row">' +
-        '<span class="num">' + (i + 1) + '.</span> ' + esc(text) + '</th>' +
+      let group = '';
+      if (item.category !== seen) {
+        seen = item.category;
+        group = '<tr class="group"><th colspan="' + span + '" scope="colgroup">' +
+                esc(item.category) + '</th></tr>';
+      }
+      return group + '<tr><th class="item-col" scope="row">' +
+        '<span class="num">' + (i + 1) + '.</span> ' + esc(item.text) + '</th>' +
         state.members.map((m, mi) =>
           '<td class="' + (m.isSelf ? 'self' : '') + '">' + String(row[mi]) + '</td>'
         ).join('') + '</tr>';
     }).join('') + '</tbody>';
 
-    $('#matrix-table').innerHTML = head + body;
+    const stats = allStats();
+    const foot = '<tfoot>' +
+      '<tr><th class="item-col" scope="row">Total</th>' +
+      stats.map(st => '<td class="' + (st.member.isSelf ? 'self' : '') + '">' +
+                      st.total + '</td>').join('') + '</tr>' +
+      '<tr><th class="item-col" scope="row">Mean (of 7)</th>' +
+      stats.map(st => '<td class="' + (st.member.isSelf ? 'self' : '') + '">' +
+                      fix2(st.mean) + '</td>').join('') + '</tr>' +
+      '</tfoot>';
+
+    $('#matrix-table').innerHTML = head + body + foot;
 
     $('#scale-legend').textContent =
       'Scale: ' + SCALE.map(s => s.value + ' = ' + s.label).join('  ·  ');
@@ -668,7 +724,6 @@
     state.completedAt = new Date();
     renderDetails();
     renderScoreTable();
-    renderPie();
     renderMatrix();
 
     confirmCheck.checked = false;
@@ -697,37 +752,25 @@
   // An autoTable cell the reader should notice: the student's own line.
   const bold = text => ({ content: text, styles: { fontStyle: 'bold' } });
 
-  function hexToRgb(hex) {
-    const n = parseInt(hex.slice(1), 16);
-    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-  }
-
-  // The summary pie again, on a canvas so jsPDF can embed it.
-  function pieImage(slices, px) {
-    const scale  = 3;                       // oversample so it stays sharp in print
-    const canvas = document.createElement('canvas');
-    canvas.width = canvas.height = px * scale;
-    const ctx = canvas.getContext('2d');
-    ctx.scale(scale, scale);
-    ctx.fillStyle = SURFACE;
-    ctx.fillRect(0, 0, px, px);
-
-    const cx = px / 2, cy = px / 2, r = px / 2 - 2;
-    let angle = -Math.PI / 2;
-    slices.forEach(s => {
-      const sweep = s.share * Math.PI * 2;
-      ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.arc(cx, cy, r, angle, angle + sweep);
-      ctx.closePath();
-      ctx.fillStyle = s.colour;
-      ctx.fill();
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = SURFACE;
-      ctx.stroke();
-      angle += sweep;
+  // Item rows for the PDF, with a banner row at the top of each category.
+  function responseRows() {
+    const rows = [];
+    let seen = '';
+    SURVEY_ITEMS.forEach((item, i) => {
+      if (item.category !== seen) {
+        seen = item.category;
+        rows.push([{
+          content: item.category,
+          colSpan: state.members.length + 1,
+          styles: { fontStyle: 'bold', halign: 'left', fillColor: [248, 249, 250] }
+        }]);
+      }
+      const row = ensureRatings(i);
+      rows.push([(i + 1) + '. ' + item.text].concat(state.members.map((m, mi) =>
+        m.isSelf ? bold(String(row[mi])) : String(row[mi])
+      )));
     });
-    return canvas.toDataURL('image/png');
+    return rows;
   }
 
   function buildPdf() {
@@ -773,9 +816,8 @@
       body: detailRows(false)
     });
 
-    // Normalised scores
-    const pdfShares = memberShares();
-    y = heading('Normalised scores', doc.lastAutoTable.finalY + 26);
+    // Average ratings
+    y = heading('Average ratings', doc.lastAutoTable.finalY + 26);
     doc.autoTable({
       startY: y,
       theme: 'grid',
@@ -784,58 +826,18 @@
       headStyles: { fillColor: [240, 241, 243], textColor: 30, fontStyle: 'bold' },
       columnStyles: {
         0: { halign: 'left' }, 1: { halign: 'center' },
-        2: { halign: 'center', fontStyle: 'bold' }, 3: { halign: 'center' }
+        2: { halign: 'center', fontStyle: 'bold' }
       },
-      head: [['Member', 'Mean (of 7)', 'Normalised (of ' + NORMALISED_MAX + ')',
-              'Share of work']],
-      body: allStats().map((st, i) => [
+      head: [['Member', 'Total', 'Mean (of 7)']],
+      body: allStats().map(st => [
         st.member.isSelf ? bold(st.member.name) : st.member.name,
-        fix2(st.mean),
-        fix2(st.score) + ' / ' + NORMALISED_MAX,
-        pct(pdfShares[i].share)
+        String(st.total),
+        fix2(st.mean) + ' / 7'
       ])
     });
 
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(120);
-    doc.text(' ',
-             M, doc.lastAutoTable.finalY + 14);
-
-    // Share of work
-    y = heading('Share of work', doc.lastAutoTable.finalY + 38);
-    const slices  = workShares();
-    const pieSize = 132;
-    const legendH = slices.length * 16 + 8;
-
-    if (y + Math.max(pieSize, legendH) > pageH - 70) {   // keep it on one page
-      doc.addPage();
-      y = heading('Share of work', 70);
-    }
-
-    doc.addImage(pieImage(slices, 132), 'PNG', M, y + 6, pieSize, pieSize);
-
-    let ly = y + 22;
-    const legendX = M + pieSize + 28;
-    slices.forEach(s => {
-      const rgb = hexToRgb(s.colour);
-      doc.setFillColor(rgb[0], rgb[1], rgb[2]);
-      doc.rect(legendX, ly - 7, 9, 9, 'F');
-      doc.setFont('helvetica', s.isSelf ? 'bold' : 'normal');
-      doc.setFontSize(9);
-      doc.setTextColor(40);
-      doc.text(s.name, legendX + 16, ly);
-      doc.text(pct(s.share), pageW - M, ly, { align: 'right' });
-      ly += 16;
-    });
-
-    doc.setFontSize(8);
-    doc.setTextColor(120);
-    doc.text(" ",
-             M, y + pieSize + 22);
-
     // Every rating, for reference
-    y = heading('All responses', Math.max(y + pieSize + 22, ly) + 26);
+    y = heading('All responses', doc.lastAutoTable.finalY + 38);
     const memberCols = {};
     state.members.forEach((m, i) => {
       memberCols[i + 1] = { halign: 'center' };
@@ -849,13 +851,17 @@
       headStyles: { fillColor: [240, 241, 243], textColor: 30, fontStyle: 'bold',
                     halign: 'center' },
       columnStyles: Object.assign({ 0: { halign: 'left', cellWidth: 200 } }, memberCols),
+      showFoot: 'lastPage',
       head: [['Survey item'].concat(state.members.map(m => m.name))],
-      body: SURVEY_ITEMS.map((text, i) => {
-        const row = ensureRatings(i);
-        return [(i + 1) + '. ' + text].concat(state.members.map((m, mi) =>
-          m.isSelf ? bold(String(row[mi])) : String(row[mi])
-        ));
-      })
+      body: responseRows(),
+      foot: [
+        ['Total'].concat(allStats().map(st =>
+          st.member.isSelf ? bold(String(st.total)) : String(st.total))),
+        ['Mean (of 7)'].concat(allStats().map(st =>
+          st.member.isSelf ? bold(fix2(st.mean)) : fix2(st.mean)))
+      ],
+      footStyles: { fillColor: [240, 241, 243], textColor: 30, fontStyle: 'bold',
+                    halign: 'center' }
     });
 
     doc.setFont('helvetica', 'normal');

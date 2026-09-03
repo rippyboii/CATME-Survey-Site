@@ -587,60 +587,46 @@ body {
   font-weight: 700;
 }
 
-/* ---------- share of work pie ---------- */
+/* ---------- category labels ---------- */
 
-.pie-block {
-  display: flex;
-  align-items: center;
-  gap: 28px;
-  flex-wrap: wrap;
-  padding: 18px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-}
-
-.pie-figure {
-  flex: 0 0 auto;
-  width: 200px;
-}
-
-.pie-figure svg {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.pie-legend {
-  flex: 1 1 240px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.pie-legend li {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 0;
-  border-bottom: 1px dotted var(--border);
-  font-size: .86rem;
-}
-
-.pie-legend li:last-child { border-bottom: none; }
-
-.pie-legend .swatch {
-  width: 12px;
-  height: 12px;
-  flex: 0 0 12px;
-  border-radius: 3px;
-}
-
-.pie-legend .who { flex: 1 1 auto; }
-
-.pie-legend .pct {
+.item-category {
+  margin: 0 0 6px;
+  color: var(--accent);
+  font-size: .72rem;
   font-weight: 700;
-  font-variant-numeric: tabular-nums;
+  letter-spacing: .06em;
+  text-transform: uppercase;
 }
+
+.rating-table.matrix .group th {
+  position: sticky;
+  left: 0;
+  background: #f2f4f6;
+  text-align: left;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.rating-table.matrix tfoot th,
+.rating-table.matrix tfoot td {
+  background: #f0f1f3;
+  border-top: 2px solid #c8ccd2;
+  font-weight: 700;
+}
+
+.rating-table.matrix tfoot .item-col {
+  background: #f0f1f3;
+  text-align: left;
+}
+
+.rating-table.matrix tfoot tr:first-child th,
+.rating-table.matrix tfoot tr:first-child td { border-top: 2px solid #c8ccd2; }
+
+.rating-table.matrix tfoot tr:last-child th,
+.rating-table.matrix tfoot tr:last-child td { border-top: 1px solid var(--border); }
 
 /* ---------- small screens ---------- */
 
@@ -666,9 +652,4 @@ body {
   .detail-grid { grid-template-columns: 1fr; }
   .rating-table.matrix .item-col { min-width: 180px; }
   .score-table th, .score-table td { padding: 8px 7px; font-size: .8rem; }
-}
-
-@media (max-width: 620px) {
-  .pie-block { justify-content: center; gap: 18px; }
-  .pie-figure { width: 170px; }
 }
