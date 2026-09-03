@@ -37,31 +37,22 @@ body {
 /* ---------- header ---------- */
 
 .app-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
   margin-bottom: 28px;
+  text-align: center;
 }
 
-.app-logo {
-  width: 56px;
-  height: 56px;
-  flex: 0 0 56px;
+.app-banner {
+  display: block;
+  width: 100%;
+  max-width: 560px;
+  height: auto;
+  margin: 0 auto 20px;
 }
-
-.app-titles { text-align: left; }
 
 .app-header h1 {
   margin: 0;
   font-size: 1.6rem;
   letter-spacing: -.01em;
-}
-
-.app-sub {
-  margin: 4px 0 0;
-  color: var(--muted);
-  font-size: .9rem;
 }
 
 /* ---------- progress ---------- */
@@ -632,9 +623,8 @@ body {
 
 @media (max-width: 620px) {
   .app { padding: 20px 12px 48px; }
-  .app-header { flex-direction: column; gap: 10px; text-align: center; }
-  .app-titles { text-align: center; }
-  .app-logo { width: 48px; height: 48px; flex-basis: 48px; }
+  .app-banner { margin-bottom: 14px; }
+  .app-header h1 { font-size: 1.35rem; }
   .screen { padding: 20px 16px; }
   .progress .label { display: none; }
   .progress li { justify-content: center; }

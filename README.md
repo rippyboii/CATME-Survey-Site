@@ -21,8 +21,8 @@ python -m http.server 8000
 index.html            five screens: welcome, details, team, survey, summary
 styles.css
 app.js                state, validation, scoring, PDF
-assets/logo.png       shown in the page header
-assets/logo-data.js   the same logo as base64, for the PDF
+assets/header.png     the banner, shown on the page and in the PDF
+assets/header-data.js the same banner as base64, for the PDF
 tools/                one script, for regenerating the above
 vendor/               jsPDF and its autoTable plugin
 ```
@@ -56,12 +56,12 @@ The pie chart has eight colours and does not reuse them. A team bigger than that
 folds the extra teammates into one grey slice, though the table above the chart
 still lists everyone. The student themselves always keeps their own slice.
 
-The PDF gets the logo from `assets/logo-data.js` rather than the PNG, because
+The PDF gets the banner from `assets/header-data.js` rather than the PNG, because
 browsers refuse to read an image back off a canvas when the page has been opened
-straight from disk. So after replacing `assets/logo.png`:
+straight from disk. So after replacing `assets/header.png`:
 
 ```bash
-python tools/make-logo-data.py
+python tools/make-header-data.py
 ```
 
 ## Licence

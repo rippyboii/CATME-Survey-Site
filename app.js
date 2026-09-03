@@ -762,7 +762,7 @@
         rows.push([{
           content: item.category,
           colSpan: state.members.length + 1,
-          styles: { fontStyle: 'bold', halign: 'left', fillColor: [248, 249, 250] }
+          styles: { fontStyle: 'bold', halign: 'left', fillColor: [240, 241, 243] }
         }]);
       }
       const row = ensureRatings(i);
@@ -782,19 +782,24 @@
     const pageW = doc.internal.pageSize.getWidth();
     const pageH = doc.internal.pageSize.getHeight();
 
+    // The banner itself goes on every page, down with the footer.
+    const bannerW = 220;
+    const bannerH = bannerW / (window.HEADER_RATIO || 5.0562);
+    const bannerY = 36;
+
     // Header
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(15);
-    doc.text('Team Member Effectiveness Survey', M, 58);
+    doc.text('Team Member Effectiveness Survey', pageW / 2, 108, { align: 'center' });
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
     doc.setTextColor(110);
-    doc.text('Global College - ' + state.student.courseCode +
-             ' - peer and self evaluation', M, 75);
+    doc.text(state.student.courseCode + ' - peer and self evaluation',
+             pageW / 2, 125, { align: 'center' });
 
     doc.setDrawColor(200);
-    doc.line(M, 86, pageW - M, 86);
+    doc.line(M, 138, pageW - M, 138);
     doc.setTextColor(30);
 
     const heading = (text, y) => {
@@ -806,7 +811,7 @@
     };
 
     // Student details
-    let y = heading('Student details', 110);
+    let y = heading('Student details', 162);
     doc.autoTable({
       startY: y,
       theme: 'plain',
@@ -816,28 +821,9 @@
       body: detailRows(false)
     });
 
-    // Average ratings
-    y = heading('Average ratings', doc.lastAutoTable.finalY + 26);
-    doc.autoTable({
-      startY: y,
-      theme: 'grid',
-      margin: { left: M, right: M, top: 96, bottom: 62 },
-      styles: { fontSize: 9, cellPadding: 5, lineColor: 210, textColor: 40 },
-      headStyles: { fillColor: [240, 241, 243], textColor: 30, fontStyle: 'bold' },
-      columnStyles: {
-        0: { halign: 'left' }, 1: { halign: 'center' },
-        2: { halign: 'center', fontStyle: 'bold' }
-      },
-      head: [['Member', 'Total', 'Mean (of 7)']],
-      body: allStats().map(st => [
-        st.member.isSelf ? bold(st.member.name) : st.member.name,
-        String(st.total),
-        fix2(st.mean) + ' / 7'
-      ])
-    });
-
-    // Every rating, for reference
-    y = heading('All responses', doc.lastAutoTable.finalY + 38);
+    // Every rating, for reference. The totals live at the foot of this table,
+    // so there is no separate averages table.
+    y = heading('All responses', doc.lastAutoTable.finalY + 30);
     const memberCols = {};
     state.members.forEach((m, i) => {
       memberCols[i + 1] = { halign: 'center' };
@@ -852,6 +838,7 @@
                     halign: 'center' },
       columnStyles: Object.assign({ 0: { halign: 'left', cellWidth: 200 } }, memberCols),
       showFoot: 'lastPage',
+      rowPageBreak: 'avoid',
       head: [['Survey item'].concat(state.members.map(m => m.name))],
       body: responseRows(),
       foot: [
@@ -875,8 +862,9 @@
     for (let i = 1; i <= pages; i++) {
       doc.setPage(i);
 
-      if (window.LOGO_PNG) {
-        doc.addImage(window.LOGO_PNG, 'PNG', pageW - M - 44, 34, 44, 44);
+      if (window.HEADER_PNG) {
+        doc.addImage(window.HEADER_PNG, 'PNG',
+                     (pageW - bannerW) / 2, bannerY, bannerW, bannerH);
       }
 
       doc.setFont('helvetica', 'normal');
