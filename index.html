@@ -42,6 +42,7 @@
               need to turn in on Canvas.</strong></li>
           <li>Please ask the Teaching Team if you need any assistance while completing
               the survey.</li>
+          <li> This survey is based on the Comprehensive Assessment of Team Member Effectiveness (CATME). Loughry, M. L., Ohland, M. W., & Moore, D. D. (2007). Development of a Theory-Based Assessment of Team Member Effectiveness. Educational and Psychological Measurement, 67(3), 505-524.</li>
         </ul>
         <div class="confirm-box">
           <label class="confirm-label">
@@ -73,7 +74,7 @@
           <div class="field">
             <label for="f-studentId">SJTU student ID <span class="req" aria-hidden="true">*</span></label>
             <input type="text" id="f-studentId" name="studentId" required inputmode="numeric" placeholder="e.g. 523370910001">
-            <p class="hint">12 digits, starting with 5.</p>
+            <p class="hint">12 digit student ID.</p>
             <p class="error" data-error-for="studentId"></p>
           </div>
 
@@ -134,8 +135,14 @@
         <h2 id="item-heading"></h2>
         <p class="item-text" id="item-text"></p>
 
-        <div class="table-wrap">
+        <div class="table-wrap" id="rating-wrap">
           <table class="rating-table" id="rating-table"></table>
+        </div>
+
+        <div class="comment-block" id="comment-block" hidden>
+          <textarea id="comment-box" rows="6" aria-labelledby="item-text"
+                    placeholder="Optional. Leave this blank if you have nothing to add."></textarea>
+          <p class="error" data-error-for="comment"></p>
         </div>
 
         <p class="error" data-error-for="ratings"></p>
@@ -169,6 +176,11 @@
           <table class="rating-table matrix" id="matrix-table"></table>
         </div>
         <p class="legend" id="scale-legend"></p>
+
+        <div id="comment-summary" hidden>
+          <h3 class="section-title">Anything else</h3>
+          <p class="comment-text" id="summary-comment"></p>
+        </div>
 
         <div class="confirm-box">
           <label class="confirm-label">

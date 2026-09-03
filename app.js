@@ -107,8 +107,14 @@
   // jsPDF's built-in fonts cannot draw CJK glyphs, so names must stay Latin.
   const PDF_SAFE = /^[\u0020-\u007E\u00A0-\u00FF\u2018\u2019\u201C\u201D\u2013\u2014]*$/;
   const pdfSafe = str => PDF_SAFE.test(str);
+  // Free text is allowed line breaks; the character check ignores them.
+  const pdfSafeText = str => PDF_SAFE.test(str.replace(/\s/g, ' '));
   const LATIN_ONLY_MSG =
     'Please write the name in Latin letters (pinyin): the PDF cannot print Chinese characters.';
+  const LATIN_ONLY_TEXT =
+    'Please write this in Latin letters: the PDF cannot print Chinese characters.';
+
+  const COMMENT_QUESTION = 'Is there anything else you would want us to know?';
 
   // Helpers
 
@@ -135,6 +141,7 @@
     teammates: [],       // the N names as typed
     members: [],         // [{ name, isSelf }], teammates first, then the student
     ratings: {},         // ratings[item] = one rating per member, null until answered
+    comment: '',         // the optional closing answer
     currentItem: 0,
     maxItemReached: 0    // how far they got, so earlier items stay reachable
   };
@@ -216,11 +223,7 @@
     },
     studentId(v) {
       if (!v) return 'Please enter your SJTU student ID.';
-      if (!/^[0-9]+$/.test(v)) return 'Your student ID must be digits only.';
-      const n = Number(v);
-      if (n <= 500000000000 || n >= 600000000000) {
-        return 'Your student ID must be between 500000000001 and 599999999999.';
-      }
+      if (!/^[0-9]{12}$/.test(v)) return 'Your student ID must be exactly 12 digits.';
       return '';
     },
     courseCode(v) {
@@ -408,6 +411,9 @@
 
   guards.survey = () => (state.members.length === 0 ? 'teammates' : null);
 
+  // The closing question sits one step past the rated items.
+  const COMMENT_STEP = SURVEY_ITEMS.length;
+
   // One slot per member, created on demand.
   function ensureRatings(item) {
     if (!Array.isArray(state.ratings[item]) ||
@@ -436,7 +442,7 @@
   }
 
   function renderItemNav() {
-    itemNav.innerHTML = SURVEY_ITEMS.map((item, i) => {
+    const pills = SURVEY_ITEMS.map((item, i) => {
       const locked = i > state.maxItemReached;
       const cls = ['item-pill',
         i === state.currentItem ? 'active' : '',
@@ -449,7 +455,21 @@
              ' title="' + esc(item.text) + '"' +
              ' aria-current="' + (i === state.currentItem) + '">' +
              (i + 1) + '</button>';
-    }).join('');
+    });
+
+    const noteLocked = state.maxItemReached < COMMENT_STEP;
+    const noteCls = ['item-pill', 'item-pill-note',
+      state.currentItem === COMMENT_STEP ? 'active' : '',
+      state.comment ? 'done' : '',
+      noteLocked ? 'locked' : ''
+    ].filter(Boolean).join(' ');
+
+    pills.push('<button type="button" class="' + noteCls + '" data-item="' + COMMENT_STEP + '"' +
+               (noteLocked ? ' disabled' : '') +
+               ' title="' + esc(COMMENT_QUESTION) + '"' +
+               ' aria-current="' + (state.currentItem === COMMENT_STEP) + '">Note</button>');
+
+    itemNav.innerHTML = pills.join('');
   }
 
   // Scale down the rows, members across the columns.
@@ -486,8 +506,28 @@
   }
 
   function renderItem() {
-    const n    = state.currentItem;
-    const last = SURVEY_ITEMS.length - 1;
+    const n = state.currentItem;
+
+    if (n === COMMENT_STEP) {
+      $('#item-heading').textContent  = 'One last question';
+      $('#item-text').textContent     = COMMENT_QUESTION;
+      $('#item-category').textContent = 'Optional';
+
+      $('#rating-wrap').hidden   = true;
+      $('#comment-block').hidden = false;
+      $('#comment-box').value    = state.comment;
+
+      $('#item-prev').textContent = 'Previous item';
+      $('#item-next').textContent = 'Review answers';
+
+      renderItemNav();
+      setError(surveyScreen, 'ratings', '');
+      setError(surveyScreen, 'comment', '');
+      return;
+    }
+
+    $('#rating-wrap').hidden   = false;
+    $('#comment-block').hidden = true;
 
     $('#item-heading').textContent =
       'Survey item #' + (n + 1) + ' of ' + SURVEY_ITEMS.length;
@@ -495,7 +535,7 @@
     $('#item-category').textContent = SURVEY_ITEMS[n].category;
 
     $('#item-prev').textContent = n === 0 ? 'Back to team members' : 'Previous item';
-    $('#item-next').textContent = n === last ? 'Review answers' : 'Next item';
+    $('#item-next').textContent = 'Next item';
 
     renderItemNav();
     renderTable();
@@ -531,14 +571,28 @@
     renderItem();
   });
 
+  $('#comment-box').addEventListener('input', ev => {
+    state.comment = ev.target.value;
+    setError(surveyScreen, 'comment', '');
+  });
+
   $('#item-next').addEventListener('click', () => {
+    if (state.currentItem === COMMENT_STEP) {
+      const text = $('#comment-box').value.trim();
+      if (text && !pdfSafeText(text)) {
+        setError(surveyScreen, 'comment', LATIN_ONLY_TEXT);
+        return;
+      }
+      state.comment = text;
+      return showScreen('summary');
+    }
+
     const missing = unratedNames(state.currentItem);
     if (missing.length) {
       setError(surveyScreen, 'ratings',
         'Please rate ' + missing.join(', ') + ' before moving on.');
       return;
     }
-    if (state.currentItem === SURVEY_ITEMS.length - 1) return showScreen('summary');
     state.currentItem += 1;
     state.maxItemReached = Math.max(state.maxItemReached, state.currentItem);
     renderItem();
@@ -663,11 +717,18 @@
       'Scale: ' + SCALE.map(s => s.value + ' = ' + s.label).join('  ·  ');
   }
 
+  function renderComment() {
+    const block = $('#comment-summary');
+    block.hidden = !state.comment;
+    $('#summary-comment').textContent = state.comment;
+  }
+
   onEnter.summary = function () {
     state.completedAt = new Date();
     renderDetails();
     renderScoreTable();
     renderMatrix();
+    renderComment();
 
     confirmCheck.checked = false;
     downloadBtn.disabled = true;
@@ -755,13 +816,28 @@
 
     // Student details
     let y = heading('Student details', 162);
+
+    // Half the pairs down the left, half down the right.
+    const details = detailRows(false);
+    const half = Math.ceil(details.length / 2);
+    const paired = [];
+    for (let i = 0; i < half; i++) {
+      const left  = details[i] || ['', ''];
+      const right = details[i + half] || ['', ''];
+      paired.push([left[0], left[1], right[0], right[1]]);
+    }
+
     doc.autoTable({
       startY: y,
       theme: 'plain',
       margin: { left: M, right: M, top: 96, bottom: 62 },
       styles: { fontSize: 10, cellPadding: 3, textColor: 40 },
-      columnStyles: { 0: { fontStyle: 'bold', cellWidth: 110 } },
-      body: detailRows(false)
+      columnStyles: {
+        0: { fontStyle: 'bold', cellWidth: 74 },
+        1: { cellWidth: 176 },
+        2: { fontStyle: 'bold', cellWidth: 74 }
+      },
+      body: paired
     });
 
     // Every rating, for reference. The totals live at the foot of this table,
@@ -798,7 +874,40 @@
     doc.setFontSize(8);
     doc.setTextColor(120);
     const legend = 'Scale:  ' + SCALE.map(s => s.value + ' = ' + s.label).join('   ');
-    doc.text(doc.splitTextToSize(legend, pageW - M * 2), M, doc.lastAutoTable.finalY + 14);
+    const legendLines = doc.splitTextToSize(legend, pageW - M * 2);
+    const legendY = doc.lastAutoTable.finalY + 14;
+    doc.text(legendLines, M, legendY);
+
+    if (state.comment) {
+      const answer = doc.splitTextToSize(state.comment, pageW - M * 2);
+      const bottom = pageH - 62;                   // 62 keeps clear of the footer
+      let commentY = legendY + legendLines.length * 10 + 24;
+
+      // Start on a fresh page unless the heading and a first line still fit.
+      if (commentY + 37 > bottom) {
+        doc.addPage();
+        commentY = 110;
+      }
+      heading(COMMENT_QUESTION, commentY);
+
+      const answerFont = () => {
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(40);
+      };
+
+      answerFont();
+      let lineY = commentY + 16;
+      answer.forEach(line => {
+        if (lineY > bottom) {
+          doc.addPage();
+          answerFont();
+          lineY = 110;
+        }
+        doc.text(line, M, lineY);
+        lineY += 11;
+      });
+    }
 
     // Footer on every page
     const pages = doc.getNumberOfPages();
