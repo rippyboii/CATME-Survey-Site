@@ -1,69 +1,61 @@
 # CATME Survey Site
 
-Peer and self evaluation survey for ENGR1000J at Global College. Students rate
-everyone on their team, including themselves, on ten items, and get a PDF at the
-end to hand in on Canvas.
+Peer and self evaluation survey for ENGR1000J at Global College. Students rate each member of their team, including themselves, on ten items. At the end they download a PDF to submit on Canvas.
 
-No build step and no backend. Open `index.html` in a browser and it works. Nothing
-is uploaded anywhere, the answers only ever live in the tab the student has open.
+There is no build step and no backend. All answers stay in the browser and nothing is uploaded.
 
-## Running it
+## Running
 
-Double click `index.html`, or serve the folder if you'd rather:
+Open `index.html` in a browser, or serve the folder:
 
 ```bash
 python -m http.server 8000
 ```
 
-## Layout
+## Files
 
 ```
-index.html            five screens: welcome, details, team, survey, summary
+index.html             welcome, details, team, survey and summary screens
 styles.css
-app.js                state, validation, scoring, PDF
-assets/header.png     the banner, shown on the page and in the PDF
-assets/header-data.js the same banner as base64, for the PDF
-tools/                one script, for regenerating the above
-vendor/               jsPDF and its autoTable plugin
+app.js                 state, validation, scoring, PDF export
+assets/header.png      banner image
+assets/header-data.js  banner as base64, used in the PDF
+tools/                 script to regenerate header-data.js
+vendor/                jsPDF and jsPDF-AutoTable
 ```
 
-## The questions
+## Questions
 
-`ITEM_BANK` at the top of `app.js` holds the item bank from Loughry, Ohland and
-Moore (2007), all ninety items across the five categories the paper identifies.
-Each sitting draws its own ten questions: three from contributing to the team's
-work, three from interacting with teammates, two from keeping the team on track,
-one from expecting quality, one from having relevant knowledge and skills. The
-`pick` on each category is where those numbers live.
+`ITEM_BANK` in `app.js` contains the full item bank from Loughry, Ohland and Moore (2007), grouped into five categories. Each session draws ten questions:
 
-A draw is fixed once the page loads, so going back to an earlier question shows
-the same wording. Reloading draws again.
+| Category | Items |
+|---|---|
+| Contributing to the team's work | 3 |
+| Interacting with teammates | 3 |
+| Keeping the team on track | 2 |
+| Expecting quality | 1 |
+| Having relevant knowledge, skills and abilities | 1 |
 
-`SCALE` below it is the 1 to 7 scale.
+The count for each category is set by its `pick` value. Questions are drawn once per page load, so going back shows the same wording. Reloading the page draws a new set.
 
-## Things to know
+`SCALE` defines the 1 to 7 rating scale.
 
-Names have to be in Latin letters. The fonts built into jsPDF have no Chinese
-glyphs, so a name in characters comes out blank in the PDF. The form rejects them
-with a message rather than letting someone find out afterwards.
+## Notes
 
-Student IDs are checked against the 5xxxxxxxxxxx range.
-
-Because the questions are drawn per sitting, two students on the same team will
-usually answer different items. The scores stay comparable, the wording does not.
-
-The pie chart has eight colours and does not reuse them. A team bigger than that
-folds the extra teammates into one grey slice, though the table above the chart
-still lists everyone. The student themselves always keeps their own slice.
-
-The PDF gets the banner from `assets/header-data.js` rather than the PNG, because
-browsers refuse to read an image back off a canvas when the page has been opened
-straight from disk. So after replacing `assets/header.png`:
+- Names must use Latin characters. jsPDF's built-in fonts have no Chinese glyphs, so the form rejects them.
+- Student IDs must start with 5 and follow the 5xxxxxxxxxxx format.
+- Students on the same team will usually see different questions. Scores are still comparable.
+- The pie chart uses eight colours. Extra teammates are grouped into one grey slice, but the table lists everyone. The student's own slice is always shown separately.
+- The PDF uses `assets/header-data.js` instead of the PNG, because browsers block reading images from a canvas when the page is opened from disk. After replacing `assets/header.png`, run:
 
 ```bash
 python tools/make-header-data.py
 ```
 
+## References
+
+Loughry, M. L., Ohland, M. W., & Moore, D. D. (2007). Development of a theory-based assessment of team member effectiveness. *Educational and Psychological Measurement, 67*(3), 505-524. https://doi.org/10.1177/0013164406292085
+
 ## Licence
 
-MIT, see `LICENSE`.
+MIT. See `LICENSE`.
